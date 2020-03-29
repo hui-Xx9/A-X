@@ -1,0 +1,80 @@
+package city;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Test_report {
+	//创建一个列表,用来装按行读取到的内容
+	static List<String> list=new ArrayList<>();
+	public static void readFileByLines(String filename) throws IOException {
+		File file = new File(filename);
+		BufferedReader reader=null;
+		InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file), "GBK");
+		//用reader.readLine()读出一行，并把成功读出的内容传给 tempString 字符串
+		reader = new BufferedReader(inputStreamReader);
+		String tempString = reader.readLine();
+		while((tempString = reader.readLine())!= null)
+		{
+		//把tempString里的内容存放到list中
+		list.add(tempString);
+		}
+		inputStreamReader.close();
+		reader.close();
+	}
+
+	public static void main(String[] args) throws IOException {
+		//按行读取文档到list,将原有的输入文件名修改为参数args[0]
+		readFileByLines(args[0]);
+		String[][] string = new String[list.size()][];
+		for(int i = 0;i<list.size();i++) 
+		{         
+			string[i] = list.get(i).split("\\s+");
+		}
+		//将原有的输出文件名修改为参数args[1]
+		File file = new File(args[1]);
+		FileOutputStream out = new FileOutputStream(file);
+		OutputStreamWriter wr =new OutputStreamWriter(out);
+		//设置初始值为浙江省
+		String loc = string[0][0];
+		if(args.length==2)
+		{
+			wr.write(loc+"\r\n");
+			for(int j =0 ;j < string.length;j++) 
+			{
+	            if(string[j][0].equals(loc))
+	            {
+		            wr.write(string[j][1]+"            "+string[j][2]+"\r\n");			
+	            }
+		        else
+		        {
+		            wr.write("\r\n"+string[j][0]+"\r\n");  
+		            //将loc的值更新为下一个省份，重复while循环中的操作
+		            loc = string[j][0];             
+	            }
+	        }
+		}
+		else if(args.length==3) 
+		{ 
+			//若输入的参数的数量为3，即已经输入了省份，则进行匹配
+			for(int j=0;j<string.length;j++) 
+			{
+				if(string[j][0].equals(args[2])) 
+				{
+					wr.write(string[j][1]+"       "+string[j][2]+"\r\n");
+				}
+				else 
+				{
+					continue;
+				}
+			}
+		}
+		wr.close();
+	}
+}
